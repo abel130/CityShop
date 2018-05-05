@@ -10,10 +10,10 @@ package assessment;
  * @author 30205469
  */
 public class Product {
-    private int productId;
-    private String productName;
-    private double price;
-    private int stockLevel;
+    int productId;
+    String productName;
+    double price;
+    int stockLevel;
 
     public Product() {
     }

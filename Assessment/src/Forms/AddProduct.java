@@ -20,16 +20,10 @@ import javax.swing.ButtonGroup;
  * @author 30205469
  */
 public class AddProduct extends javax.swing.JFrame {
-    private Staff loggedInStaff;
-    public AddProduct(Staff staff) {
-        loggedInStaff = staff;
+    public Staff staff;
+    
+    public AddProduct() {
         initComponents();
-        lblHidden.setVisible(false);
-        txtFootwCloth.setVisible(false);
-        
-        ButtonGroup btnGroup = new ButtonGroup();
-        btnGroup.add(rCloth);
-        btnGroup.add(rFootw);
     }
     /**
      * This method is called from within the constructor to initialize the form.
@@ -214,74 +208,37 @@ public class AddProduct extends javax.swing.JFrame {
     }//GEN-LAST:event_btnBackActionPerformed
 
     private void btnSubmitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSubmitActionPerformed
-        if(!txtName.getText().isEmpty() && !txtPrice.getText().isEmpty() && 
-            !txtStockLevel.getText().isEmpty() && !txtFootwCloth.getText().isEmpty())
-        {
-            String name = txtName.getText();
-            double price = Double.parseDouble(txtPrice.getText());
-            int stock = Integer.parseInt(txtStockLevel.getText());
-            Integer size = 0;
-            String measurement = "";
-            
-            try
-            {
-                price = Double.parseDouble(txtPrice.getText());
-            }catch(Exception ex)
-            {
-                lblMsg.setText("Price is not in Correct Format");
-                return;
-            }
-            try
-            {
-                stock = Integer.parseInt(txtStockLevel.getText());
-            }catch(Exception ex)
-            {
-                lblMsg.setText("StockLevel is not in Correct Format");
-                return;
-            }
-            
-            if (rFootw.isSelected())
-            {
-                try {
-                    
+
+            try {
+                DBhandler db = new DBhandler(); 
+                String productName = txtName.getText();
+                double price = Double.parseDouble(txtPrice.getText());
+                int stock = Integer.parseInt(txtStockLevel.getText());
+                Integer size = 0;
+                String measurement = "";
+                
+                if (rFootw.isSelected())
+                {
                     size = Integer.parseInt(txtFootwCloth.getText());
-                    Footwear newFW = new Footwear(productName,price,stock,size);
-                    DBhandler db = new DBhandler();
-                    db.addProduct(newFW);
+                    db.addProduct(productName, price, stock, measurement, size);
                     lblMsg.setText("New footwear added successfully");
-                    
-                } catch (SQLException ex) {
-                    Logger.getLogger(AddProduct.class.getName()).log(Level.SEVERE, null, ex);
-                } catch (ClassNotFoundException ex) {
-                    Logger.getLogger(AddProduct.class.getName()).log(Level.SEVERE, null, ex);
                 }
-            }
-            else if(rCloth.isSelected())
-            {
-                try {
+                else if(rCloth.isSelected())
+                {   
                     
                     measurement = txtFootwCloth.getText();
-                    Clothing newCL = new Clothing(productName,price,stock,size);
-                    DBhandler db = new DBhandler();
-                    db.addProduct(newCL);
-                    
-                } catch (SQLException ex) {
-                    Logger.getLogger(AddProduct.class.getName()).log(Level.SEVERE, null, ex);
-                } catch (ClassNotFoundException ex) {
-                    Logger.getLogger(AddProduct.class.getName()).log(Level.SEVERE, null, ex);
+                    db.addProduct(productName, price, stock, measurement, size);
+                    lblMsg.setText("New clothing added successfully");
                 }
-            }
-            else
+                else
             {
-                lblMsg.setText("Please select either Footwear or Clothing");
+                    lblMsg.setText("Please fill out all the fields and make sure a product type is selected");
             }
-        }
-        else
-        {
-           lblMsg.setText("Please fill out all the fields");
-        }
-            
-        
+            } catch (SQLException ex) {
+                Logger.getLogger(AddProduct.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (ClassNotFoundException ex) {
+                Logger.getLogger(AddProduct.class.getName()).log(Level.SEVERE, null, ex);
+            }
     }//GEN-LAST:event_btnSubmitActionPerformed
 
     private void rClothActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rClothActionPerformed
@@ -302,13 +259,16 @@ public class AddProduct extends javax.swing.JFrame {
 
     private void btnClearActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnClearActionPerformed
         // TODO add your handling code here:
-                txtName.setText("");
+        txtName.setText("");
         txtPrice.setText("");
         txtStockLevel.setText("");
         txtFootwCloth.setText("");
         lblMsg.setText("");
     }//GEN-LAST:event_btnClearActionPerformed
-
+    public void passStaff(Staff staff) 
+    {
+        this.staff = staff;
+    }
     /**
      * @param args the command line arguments
      */

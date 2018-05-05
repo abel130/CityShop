@@ -16,6 +16,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.DefaultListModel;
 import javax.swing.JOptionPane;
 import javax.swing.ListSelectionModel;
 import javax.swing.table.DefaultTableModel;
@@ -25,30 +26,16 @@ import javax.swing.table.DefaultTableModel;
  * @author abelt
  */
 public class viewBasket extends javax.swing.JFrame {
-    private int orderId;
-    private Customer loggedInCustomer;
+    private HashMap<Integer, OrderLine> orders;
+    private HashMap<Integer, Product> products;
+    public Customer customer;
+    public int orderId = 0;
+    public boolean loggedIn = false;
     
-    public viewBasket(Customer cust) throws SQLException {
-        loggedInCustomer = cust;
-        
-        orderId = loggedInCustomer.findLatestOrder().getOrderId();
-        
+    public viewBasket()
+    {
         initComponents();
-        
-        tblOrderLines.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        DefaultTableModel model = (DefaultTableModel)tblOrderLines.getModel();
-        for(Map.Entry<Integer, OrderLine> olEntry : 
-                loggedInCustomer.findLatestOrder().getOrderLines().entrySet())
-        {
-            Product ordered = olEntry.getValue().getProduct();
-            
-            model.addRow(new Object[]{ordered.getProductId(), ordered.toString(),
-                            ordered.getPrice()});
-        }
-        
-        lblTotal.setText("£" + String.format("%.02f",loggedInCustomer.findLatestOrder().getOrderTotal()));
     }
-
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -65,14 +52,19 @@ public class viewBasket extends javax.swing.JFrame {
         btnRemove = new javax.swing.JButton();
         btnBack = new javax.swing.JButton();
         lblMsg = new javax.swing.JLabel();
+        txtTotal = new javax.swing.JTextField();
+        txtPrice = new javax.swing.JTextField();
+        txtQuantity = new javax.swing.JTextField();
+        jLabel2 = new javax.swing.JLabel();
+        jLabel3 = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
-        tblOrderLines = new javax.swing.JTable();
+        lstBasket = new javax.swing.JList<>();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
         jPanel2.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
 
-        jLabel1.setText("Orders");
+        jLabel1.setText("Basket");
 
         lblTotal.setText("Total:");
 
@@ -99,65 +91,85 @@ public class viewBasket extends javax.swing.JFrame {
 
         lblMsg.setText("Msg");
 
-        tblOrderLines.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
+        jLabel2.setText("Price:");
 
-            },
-            new String [] {
-                "Product ID", "Name", "Quantity", "Price"
+        jLabel3.setText("Quantity:");
+
+        lstBasket.addListSelectionListener(new javax.swing.event.ListSelectionListener() {
+            public void valueChanged(javax.swing.event.ListSelectionEvent evt) {
+                lstBasketValueChanged(evt);
             }
-        ));
-        jScrollPane1.setViewportView(tblOrderLines);
+        });
+        jScrollPane1.setViewportView(lstBasket);
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel2Layout.createSequentialGroup()
-                .addContainerGap()
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(btnRemove)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 205, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(29, 29, 29)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addComponent(jLabel1)
-                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
-                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                .addComponent(lblTotal)
+                                .addComponent(jLabel2))
+                            .addComponent(jLabel3))
+                        .addGap(23, 23, 23)
+                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(txtPrice)
+                            .addComponent(txtQuantity)
                             .addGroup(jPanel2Layout.createSequentialGroup()
-                                .addGap(0, 0, Short.MAX_VALUE)
-                                .addComponent(btnBack))
-                            .addGroup(jPanel2Layout.createSequentialGroup()
-                                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel2Layout.createSequentialGroup()
-                                        .addComponent(btnRemove)
-                                        .addGap(81, 81, 81)
-                                        .addComponent(lblTotal))
-                                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 351, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addGap(18, 18, 18)
-                                .addComponent(btnCheckout, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-                        .addGap(223, 223, 223))))
+                                .addComponent(txtTotal, javax.swing.GroupLayout.PREFERRED_SIZE, 77, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(0, 0, Short.MAX_VALUE)))
+                        .addGap(276, 276, 276))
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addComponent(btnCheckout, javax.swing.GroupLayout.PREFERRED_SIZE, 95, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
+                        .addComponent(btnBack)
+                        .addGap(0, 0, Short.MAX_VALUE))))
             .addGroup(jPanel2Layout.createSequentialGroup()
-                .addGap(208, 208, 208)
-                .addComponent(lblMsg)
-                .addGap(0, 0, Short.MAX_VALUE))
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(jLabel1))
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addGap(23, 23, 23)
+                        .addComponent(lblMsg)))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
+                .addComponent(jLabel1)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addComponent(jLabel1)
-                        .addGap(18, 18, 18)
-                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 84, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(btnRemove)
+                            .addComponent(btnBack)
                             .addComponent(btnCheckout))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(lblTotal)
-                        .addGap(7, 7, 7))
-                    .addComponent(btnRemove))
-                .addGap(17, 17, 17)
-                .addComponent(btnBack)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(lblMsg)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addGap(23, 23, 23)
+                        .addComponent(lblMsg)
+                        .addContainerGap())
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(txtQuantity, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel3))
+                        .addGap(18, 18, 18)
+                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(txtPrice, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel2))
+                        .addGap(18, 18, 18)
+                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(lblTotal)
+                            .addComponent(txtTotal, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(89, 89, 89))))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -166,7 +178,7 @@ public class viewBasket extends javax.swing.JFrame {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, 484, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, 422, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
@@ -181,61 +193,51 @@ public class viewBasket extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnCheckoutActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCheckoutActionPerformed
-        // TODO add your handling code here:
-        if(!loggedInCustomer.isIsRegistered())
+        if(!loggedIn) 
         {
             try {
                 DBhandler db = new DBhandler();
                 Order order = new Order();
-                
-                JOptionPane option = new JOptionPane();
-                Object[] options = {"Log In", "Register"}; 
-                
-                int n = JOptionPane.showOptionDialog(null, "Please LogIn or Register", "Assessment", JOptionPane.YES_NO_OPTION,
+                JOptionPane jop = new JOptionPane();
+                Object[] options = { "Login", "Register" };
+                int n = JOptionPane.showOptionDialog(null, "Please log in or register a new account", "Assessment", JOptionPane.YES_NO_OPTION,
                         JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
-               System.out.println(n);
-            switch (n) {
+                System.out.println(n);
+                switch (n) 
+                {
                     case 0:
-                        CustomerLogin cL = new CustomerLogin();
-                        cL.setVisible(true);
-                        cL.passOrder(order);
+                        CustomerLogin cl = new CustomerLogin();
+                        cl.setVisible(true);
+                        cl.passOrder(order);
                         this.dispose();
-                        break;
+                        break;    
                     case 1:
-                        Registration R = new Registration();
-                        R.setVisible(true);
+                        Registration r = new Registration();
+                        r.setVisible(true);
                         this.dispose();
-                        break;
+                        break;    
                     default:
-                        System.out.println("Nothing selected!");
-                        break;
+                        lblMsg.setText("Please select an option");
+                        break;    
                 }
             } catch (SQLException ex) {
                 Logger.getLogger(viewBasket.class.getName()).log(Level.SEVERE, null, ex);
             } catch (ClassNotFoundException ex) {
                 Logger.getLogger(viewBasket.class.getName()).log(Level.SEVERE, null, ex);
             }
-            
-        }
-        else    
+        }else
         {
             try {
                 DBhandler db = new DBhandler();
-                
-                for(Map.Entry<Integer, OrderLine> olEntry :
-                        loggedInCustomer.findLatestOrder().getOrderLines().entrySet())
+                boolean ordered = db.completeOrder(orders, orderId);
+                if(ordered)
                 {
-                    Product orderedProduct = olEntry.getValue().getProduct();
-                    orderedProduct.setStockLevel(stockLevel - quantity);
-                    db.updateOrderLine(orderId, NW_RESIZE_CURSOR, orderId);
+                    db.addOrder(customer);
+                    lblMsg.setText("Order Succesful!");
+                }else
+                {
+                    lblMsg.setText("Please change quantity and try again!");
                 }
-                
-                loggedInCustomer.findLatestOrder().setStatus("Complete");
-                db.completeOrder(orderId);
-                
-                Confirmation confirm = new Confirmation(loggedInCustomer, orderId);
-                this.dispose();
-                confirm.setVisible(true);
             } catch (SQLException ex) {
                 Logger.getLogger(viewBasket.class.getName()).log(Level.SEVERE, null, ex);
             } catch (ClassNotFoundException ex) {
@@ -245,45 +247,132 @@ public class viewBasket extends javax.swing.JFrame {
     }//GEN-LAST:event_btnCheckoutActionPerformed
 
     private void btnRemoveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRemoveActionPerformed
-        // TODO add your handling code here:
-        if(tblOrderLines.getSelectedRow() == -1)
-        {
-            lblMsg.setText("A product must be selected first");
-        }
-         else
-        {
-            try {
-                DefaultTableModel model = (DefaultTableModel)tblOrderLines.getModel();
-                int productId = Integer.parseInt(String.valueOf(model.getValueAt(tblOrderLines.getSelectedRow(),0)));
-                loggedInCustomer.findLatestOrder().removeOrderLine(productId);
-                
-                model.removeRow(tblOrderLines.getSelectedRow());
-                
-                lblMsg.setText("Product has been removed");
-                lblTotal.setText("£" + String.format("%.02f",loggedInCustomer.findLatestOrder().getOrderTotal()));
-            } catch (SQLException ex) {
-                Logger.getLogger(viewBasket.class.getName()).log(Level.SEVERE, null, ex);
-            } catch (ClassNotFoundException ex) {
-                Logger.getLogger(viewBasket.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        }
-    }//GEN-LAST:event_btnRemoveActionPerformed
-
-    private void btnBackActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBackActionPerformed
-        // TODO add your handling code here:
-        CustomerViewProducts viewProducts;
         try {
-            viewProducts = new CustomerViewProducts(loggedInCustomer);
-            this.dispose();
-            viewProducts.setVisible(true);
+            DBhandler db = new DBhandler();
+            String basketProduct = lstBasket.getSelectedValue();
+            int basketIndex = lstBasket.getSelectedIndex();
+            
+            txtQuantity.setText("");
+            txtPrice.setText("");
+            
+            for(Map.Entry<Integer, Product> productEntry : products.entrySet())
+            {
+                Product actualProduct = productEntry.getValue();
+                if(actualProduct.getProductName() == basketProduct)
+                {
+                   for(Map.Entry<Integer, OrderLine> orderEntry : orders.entrySet())
+                    {
+                        OrderLine orderLine = orderEntry.getValue();
+                        if(orderLine.getProductID() == actualProduct.getProductId() && orderLine.getOrderID() == orderId)
+                        {
+                            boolean removed = db.deleteOrderLine(orderLine.getOrderLineID());
+                            db.updateOrderTotal(orderId);
+                            if(removed) 
+                            {
+                                fillBasket();
+                                lstBasket.setSelectedIndex(basketIndex);
+                            }
+                        }
+                    }
+                }
+            }
+            if(lstBasket.isSelectionEmpty())
+            {
+                lblMsg.setText("Please select a product to remove and try again! ");
+            }
         } catch (SQLException ex) {
             Logger.getLogger(viewBasket.class.getName()).log(Level.SEVERE, null, ex);
         } catch (ClassNotFoundException ex) {
             Logger.getLogger(viewBasket.class.getName()).log(Level.SEVERE, null, ex);
         }
+    }//GEN-LAST:event_btnRemoveActionPerformed
+
+    private void btnBackActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBackActionPerformed
+        CustomerViewProducts vp = new CustomerViewProducts();
+        vp.passUser(loggedIn);
+        vp.passCustomer(customer);
+        vp.setVisible(true);
+        this.dispose();
         
     }//GEN-LAST:event_btnBackActionPerformed
 
+    private void lstBasketValueChanged(javax.swing.event.ListSelectionEvent evt) {//GEN-FIRST:event_lstBasketValueChanged
+        DecimalFormat formatter = new DecimalFormat("#0.00");
+        for(Map.Entry<Integer, Product> productEntry : products.entrySet())
+        {
+            Product actualProduct = productEntry.getValue();
+            if(actualProduct.getProductName() == lstBasket.getSelectedValue())
+            {
+                for(Map.Entry<Integer, OrderLine> orderEntry : orders.entrySet())
+                {
+                    OrderLine orderLine = orderEntry.getValue();
+                    if(orderLine.getProductID() == actualProduct.getProductId() && orderLine.getOrderID() == orderId)
+                    {
+                        txtQuantity.setText(Integer.toString(orderLine.getQuantity()));
+                        txtPrice.setText("£" + formatter.format(actualProduct.getPrice()));
+                    }
+                }
+            }
+        }
+    }//GEN-LAST:event_lstBasketValueChanged
+    public void fillBasket() 
+    {
+        try {
+            DBhandler db = new DBhandler();
+            DefaultListModel model = new DefaultListModel();
+            Order order = new Order();
+            double total = 0;
+            products = db.loadProduct();
+            orders = db.loadOrderLine(order.getOrderId());
+            orderId = order.getOrderId();
+            
+            if(loggedIn)
+            {
+                order = db.loadOrder(customer.getUserName());
+            }
+            else
+            {
+                order = db.loadOrder("temp");
+            }
+            
+            for(Map.Entry<Integer, OrderLine> orderEntry : orders.entrySet())
+            {
+                    OrderLine orderLine = orderEntry.getValue();
+                    if(orderLine.getOrderID() == order.getOrderId())
+                    {
+                        for(Map.Entry<Integer, Product> productEntry : products.entrySet())
+                        {
+                            Product product = productEntry.getValue();
+                            if(orderLine.getProductID() == product.getProductId())
+                            {
+                                model.addElement(product.getProductName());
+                                total = total + (orderLine.getQuantity() * product.getPrice());
+                                
+                            }
+                        }
+                    }
+            }
+            DecimalFormat formatter = new DecimalFormat("#0.00");
+            
+            db.updateOrderTotal(orderId);
+            txtTotal.setText(formatter.format(total));
+            lstBasket.setModel(model);
+        } catch (SQLException ex) {
+            Logger.getLogger(viewBasket.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger(viewBasket.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+     public void passUser(boolean loggedIn, Customer customer) 
+    {
+        this.loggedIn = loggedIn;
+        this.customer = customer;
+        
+        if(!loggedIn) 
+        {
+            btnCheckout.setText("Please log in to order products");
+        }
+    }
     /**
      * @param args the command line arguments
      */
@@ -324,10 +413,15 @@ public class viewBasket extends javax.swing.JFrame {
     private javax.swing.JButton btnCheckout;
     private javax.swing.JButton btnRemove;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JLabel lblMsg;
     private javax.swing.JLabel lblTotal;
-    private javax.swing.JTable tblOrderLines;
+    private javax.swing.JList<String> lstBasket;
+    private javax.swing.JTextField txtPrice;
+    private javax.swing.JTextField txtQuantity;
+    private javax.swing.JTextField txtTotal;
     // End of variables declaration//GEN-END:variables
 }

@@ -5,17 +5,56 @@
  */
 package Forms;
 
+import assessment.Customer;
+import assessment.DBhandler;
+import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 /**
  *
  * @author 30205469
  */
 public class EditAccount extends javax.swing.JFrame {
-
+    public HashMap<String, Customer> customer = new HashMap();
+    public Customer cstmr = new Customer();
+    public String user;
     /**
      * Creates new form EditAccount
      */
     public EditAccount() {
         initComponents();
+    }
+     public void setDetails(String username) 
+    {
+        try {
+            DBhandler db = new DBhandler();
+            customer = db.loadCustomer();
+            for(Map.Entry<String, Customer> customerEntry : customer.entrySet())
+            {
+                Customer actualCustomer = customerEntry.getValue();
+                 if(customerEntry.getKey().equals(username))
+                {
+                    user = actualCustomer.getUserName();
+                    
+                    txtUsername.setText(actualCustomer.getUserName());
+                    txtPassword.setText(actualCustomer.getPassword());
+                    txtFirstName.setText(actualCustomer.getFirstName());
+                    txtLastName.setText(actualCustomer.getLastName());
+                    
+                    txtHouseNo.setText(actualCustomer.getAddressLine1());
+                    txtStreet.setText(actualCustomer.getAddressLine2());
+                    txtTown.setText(actualCustomer.getTown());
+                    txtPostCode.setText(actualCustomer.getPostCode());
+                }
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(EditAccount.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger(EditAccount.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     /**
@@ -49,6 +88,7 @@ public class EditAccount extends javax.swing.JFrame {
         btnSubmit = new javax.swing.JButton();
         btnClear = new javax.swing.JButton();
         btnBack = new javax.swing.JButton();
+        lblMsg = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -128,6 +168,11 @@ public class EditAccount extends javax.swing.JFrame {
         });
 
         btnClear.setText("Clear");
+        btnClear.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnClearActionPerformed(evt);
+            }
+        });
 
         btnBack.setText("Back");
         btnBack.addActionListener(new java.awt.event.ActionListener() {
@@ -136,6 +181,8 @@ public class EditAccount extends javax.swing.JFrame {
             }
         });
 
+        lblMsg.setText("Msg");
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -143,28 +190,18 @@ public class EditAccount extends javax.swing.JFrame {
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGap(48, 48, 48)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addGap(48, 48, 48)
-                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(jLabel2)
-                                    .addComponent(jLabel3)
-                                    .addComponent(jLabel4)
-                                    .addComponent(jLabel5))
-                                .addGap(34, 34, 34)
-                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(txtFirstName, javax.swing.GroupLayout.PREFERRED_SIZE, 103, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(txtPassword, javax.swing.GroupLayout.PREFERRED_SIZE, 103, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(txtUsername, javax.swing.GroupLayout.PREFERRED_SIZE, 103, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(txtLastName, javax.swing.GroupLayout.PREFERRED_SIZE, 103, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                            .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addGap(108, 108, 108)
-                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                    .addComponent(btnSubmit)
-                                    .addGroup(jPanel1Layout.createSequentialGroup()
-                                        .addComponent(jLabel6)
-                                        .addGap(14, 14, 14))
-                                    .addComponent(btnClear, javax.swing.GroupLayout.PREFERRED_SIZE, 65, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                            .addComponent(jLabel2)
+                            .addComponent(jLabel3)
+                            .addComponent(jLabel4)
+                            .addComponent(jLabel5))
+                        .addGap(34, 34, 34)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(txtFirstName, javax.swing.GroupLayout.PREFERRED_SIZE, 103, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(txtPassword, javax.swing.GroupLayout.PREFERRED_SIZE, 103, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(txtUsername, javax.swing.GroupLayout.PREFERRED_SIZE, 103, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(txtLastName, javax.swing.GroupLayout.PREFERRED_SIZE, 103, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addGap(0, 68, Short.MAX_VALUE))
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addContainerGap()
@@ -183,8 +220,18 @@ public class EditAccount extends javax.swing.JFrame {
                                     .addComponent(txtPostCode, javax.swing.GroupLayout.PREFERRED_SIZE, 103, javax.swing.GroupLayout.PREFERRED_SIZE))
                                 .addGap(0, 0, Short.MAX_VALUE))
                             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                                .addGap(0, 0, Short.MAX_VALUE)
-                                .addComponent(btnBack)))))
+                                .addComponent(lblMsg)
+                                .addGap(0, 0, Short.MAX_VALUE))))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGap(108, 108, 108)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(btnSubmit)
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addComponent(jLabel6)
+                                .addGap(14, 14, 14))
+                            .addComponent(btnClear, javax.swing.GroupLayout.PREFERRED_SIZE, 65, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(btnBack)))
                 .addContainerGap())
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addGap(125, 125, 125)
@@ -219,23 +266,32 @@ public class EditAccount extends javax.swing.JFrame {
                     .addComponent(jLabel7)
                     .addComponent(txtHouseNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel8)
-                    .addComponent(txtStreet, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(18, 18, 18)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel9)
-                    .addComponent(txtTown, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(18, 18, 18)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel10)
-                    .addComponent(txtPostCode, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(20, 20, 20)
-                .addComponent(btnSubmit)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(btnClear)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(btnBack))
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel8)
+                            .addComponent(txtStreet, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(18, 18, 18)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel9)
+                            .addComponent(txtTown, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(18, 18, 18)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel10)
+                            .addComponent(txtPostCode, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addGap(20, 20, 20)
+                                .addComponent(btnSubmit)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(btnClear))
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addGap(39, 39, 39)
+                                .addComponent(btnBack)))
+                        .addGap(0, 29, Short.MAX_VALUE))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addComponent(lblMsg))))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -289,17 +345,86 @@ public class EditAccount extends javax.swing.JFrame {
     private void txtPostCodeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtPostCodeActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_txtPostCodeActionPerformed
-
+public void prepareCustomer() 
+    {
+        cstmr.setUserName(txtUsername.getText());
+        cstmr.setPassword(txtPassword.getText());
+        cstmr.setFirstName(txtFirstName.getText());
+        cstmr.setLastName(txtLastName.getText());
+        
+        cstmr.setAddressLine1(txtHouseNo.getText());
+        cstmr.setAddressLine2(txtStreet.getText());
+        cstmr.setTown(txtTown.getText());
+        cstmr.setPostCode(txtPostCode.getText());
+    }
     private void btnSubmitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSubmitActionPerformed
-        // TODO add your handling code here:
+        try {
+            // TODO add your handling code here:
+            DBhandler db = new DBhandler();
+            
+            prepareCustomer();
+            db.updateCustomer(cstmr, user);
+            
+            db.updateCustomer(cstmr, user);
+            if (txtUsername.getText().equals(""))
+            {
+                lblMsg.setText("Please enter a username!");
+            }
+            if (txtPassword.getText().equals(""))
+            {
+                lblMsg.setText("Please enter a password!");
+            }
+            if (txtFirstName.getText().equals(""))
+            {
+                lblMsg.setText("Please enter a first name!");
+            }
+            if (txtLastName.getText().equals(""))
+            {
+                lblMsg.setText("Please enter a last name!");
+            }
+            if (txtHouseNo.getText().equals(""))
+            {
+                lblMsg.setText("Please enter a house number!");
+            }
+            if (txtStreet.getText().equals(""))
+            {
+                lblMsg.setText("Please enter a street!");
+            }
+            if (txtTown.getText().equals(""))
+            {
+                lblMsg.setText("Please enter a town!");
+            }
+            if (txtPostCode.getText().equals(""))
+            {
+                lblMsg.setText("Please enter a postcode!");
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(EditAccount.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger(EditAccount.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }//GEN-LAST:event_btnSubmitActionPerformed
 
     private void btnBackActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBackActionPerformed
-        // TODO add your handling code here:
-        //CustomerHome c1 = new CustomerHome();
-        //c1.setVisible(true);
-        //this.dispose();
+
+        CustomerHome ch = new CustomerHome();
+        ch.setVisible(true);
+        this.dispose();
+        ch.passCustomer(cstmr);
+        ch.setName(cstmr.getFirstName());
     }//GEN-LAST:event_btnBackActionPerformed
+
+    private void btnClearActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnClearActionPerformed
+        // TODO add your handling code here:
+        txtUsername.setText("");
+        txtPassword.setText("");
+        txtFirstName.setText("");
+        txtLastName.setText("");
+        txtHouseNo.setText("");
+        txtStreet.setText("");
+        txtTown.setText("");
+        txtPostCode.setText("");
+    }//GEN-LAST:event_btnClearActionPerformed
 
     /**
      * @param args the command line arguments
@@ -351,6 +476,7 @@ public class EditAccount extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel8;
     private javax.swing.JLabel jLabel9;
     private javax.swing.JPanel jPanel1;
+    private javax.swing.JLabel lblMsg;
     private javax.swing.JTextField txtFirstName;
     private javax.swing.JTextField txtHouseNo;
     private javax.swing.JTextField txtLastName;

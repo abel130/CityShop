@@ -5,22 +5,26 @@
  */
 package Forms;
 
+import assessment.Customer;
 import assessment.Staff;
+import java.sql.SQLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
  * @author 30205469
  */
 public class StaffHome extends javax.swing.JFrame {
-
+    public Staff staff;
     /**
      * Creates new form StaffHome
      */
     Staff authStaff = new Staff();
-    public StaffHome(Staff s) {
+    public StaffHome() {
         initComponents();
-        this.authStaff = s;
-        this.lblWelcome.setText("Welcome " + authStaff.getFirstName() + ", You are logged in as Staff!");
+        
+        this.lblWelcome.setText("Welcome " + staff.getFirstName() + ", You are logged in as Staff!");
     }
 
     /**
@@ -50,6 +54,11 @@ public class StaffHome extends javax.swing.JFrame {
         });
 
         btnOrders.setText("View All Orders");
+        btnOrders.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnOrdersActionPerformed(evt);
+            }
+        });
 
         btnLogout.setText("Log Out");
         btnLogout.addActionListener(new java.awt.event.ActionListener() {
@@ -120,12 +129,33 @@ public class StaffHome extends javax.swing.JFrame {
 
     private void btnModifyActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnModifyActionPerformed
         // TODO add your handling code here:
-        StaffViewProducts c1 = new StaffViewProducts();
-        c1.setVisible(true);
+        StaffViewProducts sV = new StaffViewProducts();
+        sV.passStaff(staff);
+        sV.setVisible(true);
         this.dispose();
         
     }//GEN-LAST:event_btnModifyActionPerformed
 
+    private void btnOrdersActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnOrdersActionPerformed
+        try {
+            Customer customer = null;
+            boolean loggedIn = false;
+            ViewOrders vO = new ViewOrders();
+            vO.passCustomer(customer, loggedIn);
+            vO.passStaff(staff);
+            vO.fillOrderList();
+            vO.setVisible(true);
+            this.dispose();
+        } catch (SQLException ex) {
+            Logger.getLogger(StaffHome.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger(StaffHome.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }//GEN-LAST:event_btnOrdersActionPerformed
+    public void passStaff(Staff staff) 
+    {
+        this.staff = staff;
+    }
     /**
      * @param args the command line arguments
      */

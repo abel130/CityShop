@@ -10,72 +10,33 @@ package assessment;
  * @author 30205469
  */
 public class OrderLine {
-    private int orderLineId;
-    private int quantity;
-    private double lineTotal;
-    private Product product;
-    private int productId;
-    private int orderId;
+    int productID;
+    int orderID;
+    int orderLineID;
+    int quantity;
 
-    public int getProductId() {
-        return productId;
+    public int getProductID() {
+        return productID;
     }
 
-    public void setProductId(int productId) {
-        this.productId = productId;
+    public void setProductID(int productID) {
+        this.productID = productID;
     }
 
-    public int getOrderId() {
-        return orderId;
+    public int getOrderID() {
+        return orderID;
     }
 
-    public void setOrderId(int orderId) {
-        this.orderId = orderId;
+    public void setOrderID(int orderID) {
+        this.orderID = orderID;
     }
 
-    public Product getProduct() {
-        return product;
+    public int getOrderLineID() {
+        return orderLineID;
     }
 
-    public void setProduct(Product product) {
-        this.product = product;
-    }
-
-    public OrderLine(int orderLineIdIn, Product productIn, int quantityIn , double lineTotalIn) {
-        orderLineId = orderLineIdIn;
-        product = productIn;
-        quantity = quantityIn;
-        lineTotal= lineTotalIn;
-    }
-    public OrderLine(Order orderIn, Product productIn)
-    {
-        orderLineId = orderIn.generateUniqueOrderlineId();
-        product = productIn;
-        quantity = 1;
-        lineTotal = product.getPrice() * quantity;
-    }
-    public OrderLine(Order orderIn, Product productIn, double lineTotalIn)
-    {
-        orderLineId = orderIn.generateUniqueOrderlineId();
-        product = productIn;
-        quantity = 1;
-        lineTotal = lineTotalIn;
-    }
-
-    public OrderLine(Order order, Product product, int quantity, int orderId, int productId) {
-        this.orderLineId = order.generateUniqueOrderlineId();
-        this.quantity = quantity;
-        this.lineTotal  = quantity * product.getPrice();
-        this.product = product;
-        this.orderId = orderId;
-        this.productId = productId;
-    }
-    public int getOrderLineId() {
-        return orderLineId;
-    }
-
-    public void setOrderLineId(int orderLineId) {
-        this.orderLineId = orderLineId;
+    public void setOrderLineID(int orderLineID) {
+        this.orderLineID = orderLineID;
     }
 
     public int getQuantity() {
@@ -93,5 +54,19 @@ public class OrderLine {
     public void setLineTotal(double lineTotal) {
         this.lineTotal = lineTotal;
     }
+    double lineTotal;
+
+    public OrderLine() 
+    {
+        
+    }
+    public OrderLine(int orderLineID, int productID, int quantity, double lineTotal) 
+    {
+        this.productID = productID;
+        this.orderLineID = orderLineID;
+        this.quantity = quantity;
+        this.lineTotal = lineTotal;
+    }
+    
     
 }

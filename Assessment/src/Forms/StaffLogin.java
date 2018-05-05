@@ -168,11 +168,12 @@ public class StaffLogin extends javax.swing.JFrame {
         
         try{
             DBhandler myDB = new DBhandler();
-            Staff s = myDB.StaffLogin(username, password);
-            myDB.Close();
+            Staff s = myDB.staffLogin(username, password);
+            myDB.closeDB();
             if(s!=null)
             {
-                StaffHome s1 = new StaffHome(s);
+                StaffHome s1 = new StaffHome();
+                s1.passStaff(s);
                 s1.setVisible(true);
                 this.dispose();
                 

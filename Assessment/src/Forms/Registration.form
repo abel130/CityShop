@@ -106,7 +106,7 @@
                                       <Component id="btnClear" alignment="1" min="-2" pref="65" max="-2" attributes="0"/>
                                   </Group>
                                   <EmptySpace min="-2" pref="36" max="-2" attributes="0"/>
-                                  <Component id="lblWarning" min="-2" max="-2" attributes="0"/>
+                                  <Component id="lblMsg" min="-2" max="-2" attributes="0"/>
                               </Group>
                           </Group>
                           <EmptySpace min="0" pref="59" max="32767" attributes="0"/>
@@ -166,7 +166,7 @@
                   <EmptySpace min="-2" pref="20" max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="3" attributes="0">
                       <Component id="btnSubmit" alignment="3" min="-2" max="-2" attributes="0"/>
-                      <Component id="lblWarning" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="lblMsg" alignment="3" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <EmptySpace type="unrelated" max="-2" attributes="0"/>
                   <Component id="btnClear" min="-2" max="-2" attributes="0"/>
@@ -279,6 +279,9 @@
           <Properties>
             <Property name="text" type="java.lang.String" value="Clear"/>
           </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnClearActionPerformed"/>
+          </Events>
         </Component>
         <Component class="javax.swing.JButton" name="btnReturn">
           <Properties>
@@ -288,7 +291,7 @@
             <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnReturnActionPerformed"/>
           </Events>
         </Component>
-        <Component class="javax.swing.JLabel" name="lblWarning">
+        <Component class="javax.swing.JLabel" name="lblMsg">
           <Properties>
             <Property name="text" type="java.lang.String" value="Error Msg"/>
           </Properties>

@@ -5,6 +5,7 @@
  */
 package Forms;
 
+import assessment.Customer;
 import assessment.DBhandler;
 import java.sql.SQLException;
 import java.util.logging.Level;
@@ -15,7 +16,7 @@ import java.util.logging.Logger;
  * @author 30205469
  */
 public class MainMenu extends javax.swing.JFrame {
-
+    public Customer customer = new Customer();
     /**
      * Creates new form MainMenu
      */
@@ -141,8 +142,9 @@ public class MainMenu extends javax.swing.JFrame {
 
     private void btnProductsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnProductsActionPerformed
         // TODO add your handling code here:#
-        StaffViewProducts c1 = new StaffViewProducts();
-        c1.setVisible(true);
+        CustomerViewProducts vp = new CustomerViewProducts();
+        //vp.passCustomer(customer);
+        vp.setVisible(true);
         this.dispose();
     }//GEN-LAST:event_btnProductsActionPerformed
 

@@ -191,8 +191,8 @@ public class CustomerLogin extends javax.swing.JFrame {
         
         try{
             DBhandler myDB = new DBhandler();
-            Customer c = myDB.CustomerLogin(username, password);
-            myDB.Close();
+            Customer c = myDB.customerLogin(username, password);
+            myDB.closeDB();
             if(c!=null)
             {
                 CustomerHome c1 = new CustomerHome(c);

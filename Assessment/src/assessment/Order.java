@@ -86,7 +86,7 @@ public class Order {
     public void setStatus(String status) {
         this.status = status;
     }
-    public int generateUniqueOrderlineId()
+    /**public int generateUniqueOrderlineId()
     {
         int counter = 0;
         for (Map.Entry<Integer, OrderLine> entry: orderLines.entrySet()) 
@@ -173,6 +173,6 @@ public class Order {
         }
         
     }
-    
+    */
     
 }

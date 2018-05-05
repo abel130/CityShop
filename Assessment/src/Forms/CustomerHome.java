@@ -6,23 +6,31 @@
 package Forms;
 
 import assessment.Customer;
+import assessment.DBhandler;
+import java.sql.SQLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
  * @author 30205469
  */
 public class CustomerHome extends javax.swing.JFrame {
-
-    /**
-     * Creates new form CustomerHome
-     */
-    Customer authCustomer = new Customer();
-    public CustomerHome(Customer c) {
+    public Customer customer = new Customer();
+    public boolean loggedIn = true;
+    
+    public CustomerHome(Customer csutomer) {
         initComponents();
-        this.authCustomer = c;
-        this.lblWelcome.setText("Welcome " + authCustomer.getFirstName() + ", Enjoy shopping!");
+        this.customer = customer;
+        this.lblWelcome.setText("Welcome " + customer.getFirstName() + ", Enjoy shopping!");
         
     }
+    CustomerHome() 
+    {
+        initComponents();
+    }
+
+    
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -53,6 +61,11 @@ public class CustomerHome extends javax.swing.JFrame {
         });
 
         btnOrders.setText("View My Orders");
+        btnOrders.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnOrdersActionPerformed(evt);
+            }
+        });
 
         btnEdit.setText("Edit Details");
         btnEdit.addActionListener(new java.awt.event.ActionListener() {
@@ -62,6 +75,11 @@ public class CustomerHome extends javax.swing.JFrame {
         });
 
         btnUnregister.setText("Unregister From Shop");
+        btnUnregister.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnUnregisterActionPerformed(evt);
+            }
+        });
 
         btnLogout.setText("Log Out");
         btnLogout.addActionListener(new java.awt.event.ActionListener() {
@@ -137,18 +155,57 @@ public class CustomerHome extends javax.swing.JFrame {
 
     private void btnEditActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEditActionPerformed
         // TODO add your handling code here:
-        EditAccount c1 = new EditAccount();
-        c1.setVisible(true);
+        EditAccount ea = new EditAccount();
+        ea.setVisible(true);
         this.dispose();
+        ea.setDetails(customer.getUserName());
+        ea.prepareCustomer();
+        
     }//GEN-LAST:event_btnEditActionPerformed
 
     private void btnBrowseActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBrowseActionPerformed
         // TODO add your handling code here:
-        StaffViewProducts c1 = new StaffViewProducts();
-        c1.setVisible(true);
+        CustomerViewProducts vp = new CustomerViewProducts();
+        vp.passUser(loggedIn);
+        vp.passCustomer(customer);
+        vp.setVisible(true);
         this.dispose();
+        
     }//GEN-LAST:event_btnBrowseActionPerformed
 
+    private void btnUnregisterActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnUnregisterActionPerformed
+        try {
+            
+            DBhandler db = new DBhandler();
+            db.deleteCustomer(customer.getUserName());
+            MainMenu main = new MainMenu();
+            main.setVisible(true);
+            this.dispose();
+            
+        } catch (SQLException ex) {
+            Logger.getLogger(CustomerHome.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger(CustomerHome.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }//GEN-LAST:event_btnUnregisterActionPerformed
+
+    private void btnOrdersActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnOrdersActionPerformed
+        try {
+            ViewOrders vo = new ViewOrders();
+            vo.passCustomer(customer, loggedIn);
+            vo.fillOrderList();
+            vo.setVisible(true);
+            this.dispose();
+        } catch (SQLException ex) {
+            Logger.getLogger(CustomerHome.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger(CustomerHome.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }//GEN-LAST:event_btnOrdersActionPerformed
+    public void passCustomer(Customer customer) 
+    {
+        this.customer = customer;
+    }
     /**
      * @param args the command line arguments
      */

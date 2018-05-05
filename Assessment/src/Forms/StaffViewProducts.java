@@ -7,6 +7,7 @@ package Forms;
 
 import assessment.DBhandler;
 import assessment.Product;
+import assessment.Staff;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
@@ -20,18 +21,24 @@ import javax.swing.DefaultListModel;
  */
 public class StaffViewProducts extends javax.swing.JFrame {
 
-    HashMap<Integer, Product> products;
+    public String username = "";
+    public Staff staff;
+    public HashMap<Integer,Product> products;
+    public DefaultListModel<String> categoriesModel = new DefaultListModel<>();
 
     /**
      * Creates new form AddProduct
      */
     public StaffViewProducts() {
-        initComponents();
-        
-        DefaultListModel<String> categories = new DefaultListModel();
-        categories.addElement("Clothing");
-        categories.addElement("Footwear");
-        lstCategory.setModel(categories);
+        try {
+            initComponents();
+            DBhandler db = new DBhandler();
+            products = db.loadProduct();
+        } catch (SQLException ex) {
+            Logger.getLogger(StaffViewProducts.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger(StaffViewProducts.class.getName()).log(Level.SEVERE, null, ex);
+        }
 
     }
 
@@ -47,7 +54,6 @@ public class StaffViewProducts extends javax.swing.JFrame {
 
         jPanel1 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
-        btnBack = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
         lstCategory = new javax.swing.JList<>();
         jScrollPane2 = new javax.swing.JScrollPane();
@@ -57,17 +63,12 @@ public class StaffViewProducts extends javax.swing.JFrame {
         btnDelete = new javax.swing.JButton();
         jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
+        btnBack = new javax.swing.JButton();
+        lblMsg = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
         jLabel1.setText("Edit Products");
-
-        btnBack.setText("Back");
-        btnBack.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnBackActionPerformed(evt);
-            }
-        });
 
         lstCategory.addListSelectionListener(new javax.swing.event.ListSelectionListener() {
             public void valueChanged(javax.swing.event.ListSelectionEvent evt) {
@@ -93,6 +94,11 @@ public class StaffViewProducts extends javax.swing.JFrame {
         });
 
         btnDelete.setText("Delete Product");
+        btnDelete.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnDeleteActionPerformed(evt);
+            }
+        });
 
         jLabel2.setText("Categories");
 
@@ -112,7 +118,7 @@ public class StaffViewProducts extends javax.swing.JFrame {
                         .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(44, 44, 44)
                         .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(47, Short.MAX_VALUE))
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                 .addGap(0, 0, Short.MAX_VALUE)
                 .addComponent(btnAdd)
@@ -122,8 +128,7 @@ public class StaffViewProducts extends javax.swing.JFrame {
                 .addComponent(btnEdit)
                 .addGap(29, 29, 29)
                 .addComponent(btnDelete)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 23, Short.MAX_VALUE)
-                .addComponent(btnBack))
+                .addGap(0, 0, Short.MAX_VALUE))
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addGap(80, 80, 80)
                 .addComponent(jLabel2)
@@ -146,16 +151,20 @@ public class StaffViewProducts extends javax.swing.JFrame {
                     .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addComponent(btnAdd)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGap(0, 18, Short.MAX_VALUE)
-                        .addComponent(btnBack))
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(btnEdit)
-                            .addComponent(btnDelete))
-                        .addGap(0, 0, Short.MAX_VALUE))))
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(btnEdit)
+                    .addComponent(btnDelete))
+                .addGap(0, 3, Short.MAX_VALUE))
         );
+
+        btnBack.setText("Back");
+        btnBack.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnBackActionPerformed(evt);
+            }
+        });
+
+        lblMsg.setText("Msg");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -163,66 +172,133 @@ public class StaffViewProducts extends javax.swing.JFrame {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addComponent(btnBack)))
                 .addContainerGap())
+            .addGroup(layout.createSequentialGroup()
+                .addGap(51, 51, 51)
+                .addComponent(lblMsg)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addContainerGap())
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(btnBack)
+                .addGap(27, 27, 27)
+                .addComponent(lblMsg)
+                .addGap(22, 22, 22))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnEditActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEditActionPerformed
-        // TODO add your handling code here:
-        EditProduct c1 = new EditProduct();
-        c1.setVisible(true);
-        this.dispose();
-    }//GEN-LAST:event_btnEditActionPerformed
-
-    private void btnBackActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBackActionPerformed
-         //TODO add your handling code here:
-        MainMenu c1 = new MainMenu();
-        c1.setVisible(true);
-        this.dispose();
-    }//GEN-LAST:event_btnBackActionPerformed
-
-    private void btnAddActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddActionPerformed
-        // TODO add your handling code here:
-        AddProduct aP = new AddProduct();
-        aP.setVisible(true);
-        this.dispose();
-    }//GEN-LAST:event_btnAddActionPerformed
-
-    private void lstCategoryValueChanged(javax.swing.event.ListSelectionEvent evt) {//GEN-FIRST:event_lstCategoryValueChanged
-        // TODO add your handling code here:
-        DefaultListModel<String> model2  = new DefaultListModel();        
         try {
-            DBhandler myDB = new DBhandler();
-            products = myDB.LoadProducts();
-            for (Map.Entry<Integer, Product> productEntry : products.entrySet())
-            {   
-                Product p = productEntry.getValue();
-                if(p.getClass().getName().equals("assessment."+lstCategory.getSelectedValue()))
-                {
-                    model2.addElement(p.getProductName());
-                }
-                lstProduct.setModel(model2);
+            DBhandler db = new DBhandler();
+            String product = lstProduct.getSelectedValue();
+            lstCategory.getSelectedValue();
+            for(Map.Entry<Integer, Product> productEntry : products.entrySet()) 
+            {
+               Product actualProduct = productEntry.getValue(); 
+               if(actualProduct.getProductName().equals(product))
+               {
+                   EditProduct ep = new EditProduct();
+                   ep.passStaff(staff);
+                   ep.setVisible(true);
+                   this.dispose();
+               }
+               else
+               {
+                   lblMsg.setText("You must select a product");
+               }
             }
+            
+            
         } catch (SQLException ex) {
             Logger.getLogger(StaffViewProducts.class.getName()).log(Level.SEVERE, null, ex);
         } catch (ClassNotFoundException ex) {
             Logger.getLogger(StaffViewProducts.class.getName()).log(Level.SEVERE, null, ex);
         }
+    }//GEN-LAST:event_btnEditActionPerformed
 
-        
-        
+    private void btnBackActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBackActionPerformed
+        StaffHome sh = new StaffHome();
+        sh.passStaff(staff);
+        sh.setVisible(true);
+        this.dispose();
+    }//GEN-LAST:event_btnBackActionPerformed
+
+    private void btnAddActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddActionPerformed
+        // TODO add your handling code here:
+        AddProduct ap = new AddProduct();
+        ap.passStaff(staff);
+        ap.setVisible(true);
+        this.dispose();
+    }//GEN-LAST:event_btnAddActionPerformed
+
+    private void lstCategoryValueChanged(javax.swing.event.ListSelectionEvent evt) {//GEN-FIRST:event_lstCategoryValueChanged
+       refreshList();
     }//GEN-LAST:event_lstCategoryValueChanged
 
+    private void btnDeleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDeleteActionPerformed
+        
+        try {
+            DBhandler db = new DBhandler();
+            DefaultListModel model = new DefaultListModel();
+            String list = lstProduct.getSelectedValue();
+            for(Map.Entry<Integer, Product> productEntry : products.entrySet()) 
+            {
+                Product actualProduct = productEntry.getValue();
+                if(actualProduct.getProductName().equals(list))
+                {
+                    db.deleteProduct(actualProduct.getProductId());
+                    products = db.loadProduct();
+                    refreshList();
+                    lblMsg.setText("You have deleted: " + actualProduct.getProductName());
+                }
+                 else
+                {
+                    lblMsg.setText("Please select a product to delete");
+                }
+            }
+            
+        } catch (SQLException ex) {
+            Logger.getLogger(StaffViewProducts.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger(StaffViewProducts.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }//GEN-LAST:event_btnDeleteActionPerformed
+ 
+    public void refreshList() 
+    {
+        DefaultListModel model = new DefaultListModel();
+        lstProduct.clearSelection();   
+        for(Map.Entry<Integer, Product> productEntry : products.entrySet())
+        {
+            Product actualProduct = productEntry.getValue();
+            if(actualProduct.getClass().getName().equalsIgnoreCase("classes." + lstCategory.getSelectedValue()))
+            {
+                model.addElement(actualProduct.getProductName());
+            }
+        }
+        lstProduct.setModel(model);
+    }
+    
+    public void passUser(String name) 
+    {
+        this.username = name;
+    }
+    
+    public void passStaff(Staff staff) 
+    {
+        this.staff = staff;
+    }
     /**
      * @param args the command line arguments
      */
@@ -272,6 +348,7 @@ public class StaffViewProducts extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JLabel lblMsg;
     private javax.swing.JList<String> lstCategory;
     private javax.swing.JList<String> lstProduct;
     // End of variables declaration//GEN-END:variables

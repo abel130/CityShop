@@ -55,7 +55,7 @@ public class Registration extends javax.swing.JFrame {
         btnSubmit = new javax.swing.JButton();
         btnClear = new javax.swing.JButton();
         btnReturn = new javax.swing.JButton();
-        lblWarning = new javax.swing.JLabel();
+        lblMsg = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -135,6 +135,11 @@ public class Registration extends javax.swing.JFrame {
         });
 
         btnClear.setText("Clear");
+        btnClear.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnClearActionPerformed(evt);
+            }
+        });
 
         btnReturn.setText("Return To Login");
         btnReturn.addActionListener(new java.awt.event.ActionListener() {
@@ -143,7 +148,7 @@ public class Registration extends javax.swing.JFrame {
             }
         });
 
-        lblWarning.setText("Error Msg");
+        lblMsg.setText("Error Msg");
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -197,7 +202,7 @@ public class Registration extends javax.swing.JFrame {
                                         .addGap(14, 14, 14))
                                     .addComponent(btnClear, javax.swing.GroupLayout.PREFERRED_SIZE, 65, javax.swing.GroupLayout.PREFERRED_SIZE))
                                 .addGap(36, 36, 36)
-                                .addComponent(lblWarning)))
+                                .addComponent(lblMsg)))
                         .addGap(0, 59, Short.MAX_VALUE)))
                 .addContainerGap())
         );
@@ -243,7 +248,7 @@ public class Registration extends javax.swing.JFrame {
                 .addGap(20, 20, 20)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btnSubmit)
-                    .addComponent(lblWarning))
+                    .addComponent(lblMsg))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(btnClear)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -321,7 +326,7 @@ public class Registration extends javax.swing.JFrame {
             try {
                 DBhandler myDB = new DBhandler();
                 myDB.registerCustomer(c);
-                myDB.Close();
+                myDB.closeDB();
             } catch (SQLException ex) {
                 Logger.getLogger(Registration.class.getName()).log(Level.SEVERE, null, ex);
             } catch (ClassNotFoundException ex) {
@@ -329,7 +334,7 @@ public class Registration extends javax.swing.JFrame {
             }
         } else
         {
-            lblWarning.setText("Please fill out every field");
+            lblMsg.setText("Please fill out every field");
         }
 
         
@@ -341,6 +346,19 @@ public class Registration extends javax.swing.JFrame {
         c1.setVisible(true);
         this.dispose();
     }//GEN-LAST:event_btnReturnActionPerformed
+
+    private void btnClearActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnClearActionPerformed
+        txtUsername.setText("");
+        txtPassword.setText("");
+        txtFirstName.setText("");
+        txtLastName.setText("");
+        txtHouseNo.setText("");
+        txtStreet.setText("");
+        txtTown.setText("");
+        txtPostCode.setText("");
+        
+        lblMsg.setText("All fields are cleared");
+    }//GEN-LAST:event_btnClearActionPerformed
 
     /**
      * @param args the command line arguments
@@ -392,7 +410,7 @@ public class Registration extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel8;
     private javax.swing.JLabel jLabel9;
     private javax.swing.JPanel jPanel1;
-    private javax.swing.JLabel lblWarning;
+    private javax.swing.JLabel lblMsg;
     private javax.swing.JTextField txtFirstName;
     private javax.swing.JTextField txtHouseNo;
     private javax.swing.JTextField txtLastName;

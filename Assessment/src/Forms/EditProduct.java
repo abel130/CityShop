@@ -5,17 +5,48 @@
  */
 package Forms;
 
+import assessment.Clothing;
+import assessment.DBhandler;
+import assessment.Footwear;
+import assessment.Product;
+import assessment.Staff;
+import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 /**
  *
  * @author 30205469
  */
 public class EditProduct extends javax.swing.JFrame {
 
+    public Staff staff;
+    public Product product = new Product();
+    public HashMap<Integer, Product> products = new HashMap();
     /**
      * Creates new form EditProduct
      */
     public EditProduct() {
         initComponents();
+        Footwear fw = new Footwear();
+        Clothing cl = new Clothing();
+        
+        txtID.setText(Integer.toString(product.getProductId()));
+        txtName.setText(product.getProductName());
+        txtPrice.setText(Double.toString(product.getPrice()));
+        txtStockLevel.setText(Integer.toString(product.getStockLevel()));
+        if(product.getClass().getName().equals("classes.Footwear"))
+        {
+            fw = (Footwear) product;
+            lblMS.setText("Size:");
+            txtMS.setText(Integer.toString(fw.getSize()));
+        }else if(product.getClass().getName().equals("classes.Clothing"))
+        {
+            cl = (Clothing) product;
+            lblMS.setText("Measurement:");
+            txtMS.setText(cl.getMeasurement());
+        }
     }
 
     /**
@@ -33,7 +64,7 @@ public class EditProduct extends javax.swing.JFrame {
         txtName = new javax.swing.JTextField();
         txtPrice = new javax.swing.JTextField();
         txtStockLevel = new javax.swing.JTextField();
-        txtSize = new javax.swing.JTextField();
+        txtMS = new javax.swing.JTextField();
         btnSubmit = new javax.swing.JButton();
         btnClear = new javax.swing.JButton();
         btnBack = new javax.swing.JButton();
@@ -41,7 +72,8 @@ public class EditProduct extends javax.swing.JFrame {
         jLabel3 = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
         jLabel5 = new javax.swing.JLabel();
-        jLabel6 = new javax.swing.JLabel();
+        lblMS = new javax.swing.JLabel();
+        lblMsg = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -55,6 +87,11 @@ public class EditProduct extends javax.swing.JFrame {
         });
 
         btnClear.setText("Clear Changes");
+        btnClear.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnClearActionPerformed(evt);
+            }
+        });
 
         btnBack.setText("Back");
         btnBack.addActionListener(new java.awt.event.ActionListener() {
@@ -71,12 +108,21 @@ public class EditProduct extends javax.swing.JFrame {
 
         jLabel5.setText("Stock Level:");
 
-        jLabel6.setText("Size:");
+        lblMS.setText("Size:");
+
+        lblMsg.setText("Msg");
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                .addGap(0, 113, Short.MAX_VALUE)
+                .addComponent(btnClear)
+                .addGap(86, 86, 86)
+                .addComponent(btnSubmit)
+                .addGap(101, 101, 101)
+                .addComponent(btnBack))
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel1Layout.createSequentialGroup()
@@ -89,26 +135,18 @@ public class EditProduct extends javax.swing.JFrame {
                             .addComponent(jLabel3)
                             .addComponent(jLabel4)
                             .addComponent(jLabel5)
-                            .addComponent(jLabel6))
+                            .addComponent(lblMS))
                         .addGap(18, 18, 18)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(txtName, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(txtID, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(txtPrice, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(txtStockLevel, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(txtSize, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                            .addComponent(txtMS, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGap(69, 69, 69)
+                        .addComponent(lblMsg)))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                .addGap(0, 113, Short.MAX_VALUE)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                        .addComponent(btnClear)
-                        .addGap(86, 86, 86)
-                        .addComponent(btnSubmit)
-                        .addGap(156, 156, 156))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                        .addComponent(btnBack)
-                        .addContainerGap())))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -133,14 +171,15 @@ public class EditProduct extends javax.swing.JFrame {
                     .addComponent(jLabel5))
                 .addGap(18, 18, 18)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(txtSize, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel6))
+                    .addComponent(txtMS, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(lblMS))
                 .addGap(38, 38, 38)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btnSubmit)
-                    .addComponent(btnClear))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 37, Short.MAX_VALUE)
-                .addComponent(btnBack)
+                    .addComponent(btnClear)
+                    .addComponent(btnBack))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 46, Short.MAX_VALUE)
+                .addComponent(lblMsg)
                 .addContainerGap())
         );
 
@@ -166,18 +205,66 @@ public class EditProduct extends javax.swing.JFrame {
 
     private void btnBackActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBackActionPerformed
         // TODO add your handling code here:
-        StaffViewProducts c1 = new StaffViewProducts();
-        c1.setVisible(true);
+        StaffViewProducts vp = new StaffViewProducts();
+        vp.passStaff(staff);
+        vp.setVisible(true);
         this.dispose();
     }//GEN-LAST:event_btnBackActionPerformed
 
     private void btnSubmitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSubmitActionPerformed
-        // TODO add your handling code here:
-        StaffViewProducts c1 = new StaffViewProducts();
-        c1.setVisible(true);
-        this.dispose();
+        try {
+            Product product = new Product();
+            DBhandler db = new DBhandler();
+            
+            if(lblMS.getText().equals("Measurement:"))
+            {
+                if (txtID.getText().equals("") || txtName.getText().equals("") || txtPrice.getText().equals("") || txtStockLevel.getText().equals("") || txtMS.getText().equals(""))
+                {
+                    lblMsg.setText("Please fill out every detail!");
+                }
+                else
+                {
+                    Clothing cl = new Clothing();
+                    cl.setProductId(Integer.parseInt(txtID.getText()));
+                    cl.setProductName(txtName.getText());
+                    cl.setPrice(Double.parseDouble(txtPrice.getText()));
+                    cl.setStockLevel(Integer.parseInt(txtStockLevel.getText()));
+                    cl.setMeasurement(txtMS.getText());
+                    product = (Product) cl;
+                    db.updateProduct(product);
+                    lblMsg.setText("Product has been edited!");
+                }
+            }else
+            {
+                Footwear fw = new Footwear();
+                fw.setProductId(Integer.parseInt(txtID.getText()));
+                fw.setProductName(txtName.getText());
+                fw.setPrice(Double.parseDouble(txtPrice.getText()));
+                fw.setStockLevel(Integer.parseInt(txtStockLevel.getText()));
+                fw.setSize(Integer.parseInt(txtMS.getText()));
+                product = (Product) fw;
+                db.updateProduct(product);
+                lblMsg.setText("Product has been edited!");
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(EditProduct.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger(EditProduct.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }//GEN-LAST:event_btnSubmitActionPerformed
 
+    private void btnClearActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnClearActionPerformed
+        // TODO add your handling code here:
+        txtName.setText("");
+        txtPrice.setText("");
+        txtStockLevel.setText("");
+        txtMS.setText("");
+        
+    }//GEN-LAST:event_btnClearActionPerformed
+    public void passStaff(Staff staff) 
+    {
+        this.staff = staff;
+    }
     /**
      * @param args the command line arguments
      */
@@ -222,12 +309,13 @@ public class EditProduct extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
-    private javax.swing.JLabel jLabel6;
     private javax.swing.JPanel jPanel1;
+    private javax.swing.JLabel lblMS;
+    private javax.swing.JLabel lblMsg;
     private javax.swing.JTextField txtID;
+    private javax.swing.JTextField txtMS;
     private javax.swing.JTextField txtName;
     private javax.swing.JTextField txtPrice;
-    private javax.swing.JTextField txtSize;
     private javax.swing.JTextField txtStockLevel;
     // End of variables declaration//GEN-END:variables
 }

@@ -23,39 +23,27 @@ import javax.swing.DefaultListModel;
  */
 public class CustomerViewProducts extends javax.swing.JFrame {
 
-    private Customer loggedInCustomer;
-    private HashMap<Integer, Product> Products;
-    private Product selectedProduct;
-    
-    /*public HashMap<Integer,Product> Products;
     public Customer customer = new Customer();
     public boolean loggedIn = false;
-    public DefaultListModel<String> categoriesModel = new DefaultListModel<>();
-    */
     
+    public HashMap<Integer,Product> products;
+    public DefaultListModel<String> categories = new DefaultListModel<>();
+    
+    public CustomerViewProducts() 
+    {
+        try {
+            initComponents();
+            DBhandler db = new DBhandler();
+            products = db.loadProduct();
+        } catch (SQLException ex) {
+            Logger.getLogger(CustomerViewProducts.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger(CustomerViewProducts.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
     /**
      * Creates new form CustomerViewProducts
      */
-    public CustomerViewProducts(Customer Cust) throws SQLException, ClassNotFoundException {
-        loggedInCustomer = Cust;
-        DBhandler db = new DBhandler();
-        Products = db.LoadProducts();
-        
-        initComponents();
-        
-        
-        if(loggedInCustomer.isIsRegistered())
-        {
-           btnBack.setText("Back to customer home");
-           btnViewBasket.setVisible(true);
-        }
-        else
-        {
-            btnBack.setText("Back to main menu");
-            btnViewBasket.setVisible(false);
-        }
-        
-    }
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -112,6 +100,11 @@ public class CustomerViewProducts extends javax.swing.JFrame {
         });
 
         btnViewBasket.setText("View Basket");
+        btnViewBasket.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnViewBasketActionPerformed(evt);
+            }
+        });
 
         jLabel4.setText("Categories");
 
@@ -230,60 +223,42 @@ public class CustomerViewProducts extends javax.swing.JFrame {
     }//GEN-LAST:event_cbQuantityActionPerformed
 
     private void lstProductValueChanged(javax.swing.event.ListSelectionEvent evt) {//GEN-FIRST:event_lstProductValueChanged
-        // TODO add your handling code here:
-        Object selectedProductObject = (Object)lstProduct.getSelectedValue();
-        selectedProduct = (Product)selectedProductObject;
-        lblMsg.setText("");
-        
-        
         String productValue = lstProduct.getSelectedValue();
-        for(Map.Entry<Integer, Product> productEntry : Products.entrySet())
+        
+        for(Map.Entry<Integer, Product> productEntry : products.entrySet())
         {
-                Product actualProduct = productEntry.getValue();
-                if(actualProduct.getProductName().equalsIgnoreCase(productValue))
-                {
-                    txtStock.setText(Integer.toString(actualProduct.getStockLevel()));
-                }
+            Product actualProduct = productEntry.getValue();
+            if (actualProduct.getProductName().equalsIgnoreCase(productValue))
+            {
+                txtStock.setText(Integer.toString(actualProduct.getStockLevel()));
             }
+        }
     }//GEN-LAST:event_lstProductValueChanged
 
     private void lstCategoriesValueChanged(javax.swing.event.ListSelectionEvent evt) {//GEN-FIRST:event_lstCategoriesValueChanged
-        // TODO add your handling code here:
         DefaultListModel model = new DefaultListModel();
-        
-        for(Map.Entry<Integer, Product> productEntry : Products.entrySet())
+        lstProduct.clearSelection();
+
+        for(Map.Entry<Integer, Product> productEntry : products.entrySet())
         {
             Product actualProduct = productEntry.getValue();
-            if (actualProduct.getClass().getName().equalsIgnoreCase("models." + lstCategories.getSelectedValue()))
+            if(actualProduct.getClass().getName().equalsIgnoreCase("classes." + lstCategories.getSelectedValue()))
             {
-                try {
-                    boolean isFound = false;
-                    for (Map.Entry<Integer, OrderLine> olEntry :
-                            loggedInCustomer.findLatestOrder().getOrderLines().entrySet())
-                    {
-                        if (actualProduct.getProductId() == olEntry.getValue().getProduct().getProductId())
-                        {
-                             isFound = true;
-                        }
-                    }
-                    if(!isFound)
-                    {
-                        model.addElement(actualProduct);
-                    }
-                } catch (SQLException ex) {
-                    Logger.getLogger(CustomerViewProducts.class.getName()).log(Level.SEVERE, null, ex);
-                }
+                model.addElement(actualProduct.getProductName());
             }
         }
         lstProduct.setModel(model);
+        
     }//GEN-LAST:event_lstCategoriesValueChanged
 
     private void btnBackActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBackActionPerformed
         // TODO add your handling code here:
-        if(loggedInCustomer.isIsRegistered())
+        if(loggedIn)
         {
-            CustomerHome custHome = new CustomerHome(loggedInCustomer);
-            custHome.setVisible(true);
+            CustomerHome ch = new CustomerHome();
+            ch.setName(customer.getFirstName());
+            ch.passCustomer(customer);
+            ch.setVisible(true);
             this.dispose();
         }
         else
@@ -295,44 +270,89 @@ public class CustomerViewProducts extends javax.swing.JFrame {
     }//GEN-LAST:event_btnBackActionPerformed
 
     private void btnAddBasketActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddBasketActionPerformed
-        // TODO add your handling code here:
-        if(lstProduct.getSelectedIndex() != -1)
+        String basketProduct = lstProduct.getSelectedValue();
+        int quantity = Integer.parseInt((String)cbQuantity.getSelectedItem());
+        boolean ordered = false;
+        if(loggedIn)
         {
-            if(loggedInCustomer.isIsRegistered())
+            if(quantity > 0 && basketProduct != null) 
             {
                 try {
-                    String inBasket = lstProduct.getSelectedValue();
-                    int quantity = Integer.parseInt((String)cbQuantity.getSelectedItem());
-                    OrderLine newOrderLine = new OrderLine(loggedInCustomer.findLatestOrder() , selectedProduct ,quantity);
-                    loggedInCustomer.findLatestOrder().addOrderLine(newOrderLine, loggedInCustomer.isIsRegistered());
+                    DBhandler db = new DBhandler();
+                    Order order = db.loadOrder(customer.getUserName());
+                    ordered = db.addOrderLine(basketProduct, quantity, order.getOrderId(), 0);
+                    if(ordered)
+                    {   
+                        lblMsg.setText("Added to basked");
+                    }
                     
-                    lblMsg.setText("Added to Order");
-                
-                
+                    else
+                    {
+                        lblMsg.setText("Error");
+                    }
+                    
                 } catch (SQLException ex) {
                     Logger.getLogger(CustomerViewProducts.class.getName()).log(Level.SEVERE, null, ex);
                 } catch (ClassNotFoundException ex) {
                     Logger.getLogger(CustomerViewProducts.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
-            int quantity = Integer.parseInt((String)cbQuantity.getSelectedItem());
-            if (quantity <= 0)
-            {
-                lblMsg.setText("please enter a quantity bigger than 0");
-            }
-            else
-            {
-                CustomerLogin custLogin = new CustomerLogin();
-                custLogin.setVisible(true);
-                this.dispose();
-            }
+            if(quantity <= 0)
+                {
+                    lblMsg.setText("Please fill out quantiy");
+                }
+                if(basketProduct == null) 
+                {
+                    lblMsg.setText("Please select product");
+                }
+            
         }
         else
         {
-            lblMsg.setText("Please Select a product");
-        } 
+            if(quantity > 0 && basketProduct != null) 
+            {
+                try {
+                    DBhandler db = new DBhandler();
+                    Order order = db.loadOrder("temp");
+                    ordered = db.addOrderLine(basketProduct, quantity, order.getOrderId(), 0);
+                    if(ordered)
+                    {
+                        lblMsg.setText("Added to basket!");
+                    }
+                } catch (SQLException ex) {
+                    Logger.getLogger(CustomerViewProducts.class.getName()).log(Level.SEVERE, null, ex);
+                } catch (ClassNotFoundException ex) {
+                    Logger.getLogger(CustomerViewProducts.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+            if(quantity <= 0)
+                {
+                    lblMsg.setText("Please fill out quantiy");
+                }
+                if(basketProduct == null) 
+                {
+                    lblMsg.setText("Please select product.");
+                }
+        }
     }//GEN-LAST:event_btnAddBasketActionPerformed
 
+    private void btnViewBasketActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnViewBasketActionPerformed
+       
+        viewBasket vb = new viewBasket();
+        vb.passUser(this.loggedIn, customer);
+        vb.fillBasket();
+        vb.setVisible(true);
+        this.dispose();
+    }//GEN-LAST:event_btnViewBasketActionPerformed
+     public void passUser(boolean loggedIn) 
+    {
+        this.loggedIn = loggedIn;
+    }
+    
+    public void passCustomer(Customer customer) 
+    {
+        this.customer = customer;
+    }
     /**
      * @param args the command line arguments
      */
