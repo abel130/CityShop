@@ -32,6 +32,7 @@ public class CustomerViewProducts extends javax.swing.JFrame {
     public CustomerViewProducts() 
     {
         try {
+            
             initComponents();
             DBhandler db = new DBhandler();
             products = db.loadProduct();
